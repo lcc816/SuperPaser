@@ -116,7 +116,8 @@ void TmpMgmtWin::tempDirView_tempSelected_handler(const QModelIndex &index)
 
     if (!ok || !rootObj.checkFormat()) {
         qWarning("%s[%d]: Not a valid template", __func__, __LINE__);
-        return;
+        // 确保发送空的描述符模板
+        rootObj.clear();
     }
 
     emit this->tempSelected(rootObj);
