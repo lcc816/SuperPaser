@@ -12,6 +12,74 @@
 #include <templatemanagewindow.h>
 #include <QStandardItemModel>
 #include <QCoreApplication>
+#include <QApplication>
+#include <QClipboard>
+
+class TableView : public QTableView
+{
+    Q_OBJECT
+
+public:
+    TableView(QWidget *parent = nullptr)
+        : QTableView(parent)
+        , menu(new QMenu)
+        , copyAction(new QAction(tr("Copy Selected")))
+    {
+        menu->addAction(copyAction);
+        connect(copyAction, &QAction::triggered, this, &TableView::copyAction_triggered_handler);
+        // 显示自定义右键菜单
+        setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(this, &QTableView::customContextMenuRequested, this, [this](const QPoint &pos) {
+            this->menu->exec(viewport()->mapToGlobal(pos));
+        });
+    }
+
+private:
+    void copyAction_triggered_handler()
+    {
+        // 获取选中的范围
+        QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
+        if (selectedIndexes.isEmpty()) {
+            return; // 如果没有选中任何内容，直接返回
+        }
+
+        // 确定选中范围的行列边界
+        int minRow = selectedIndexes.first().row();
+        int maxRow = selectedIndexes.first().row();
+        int minCol = selectedIndexes.first().column();
+        int maxCol = selectedIndexes.first().column();
+
+        for (const QModelIndex &index : selectedIndexes) {
+            minRow = qMin(minRow, index.row());
+            maxRow = qMax(maxRow, index.row());
+            minCol = qMin(minCol, index.column());
+            maxCol = qMax(maxCol, index.column());
+        }
+
+        // 将选中的内容格式化为文本
+        QString text;
+        for (int row = minRow; row <= maxRow; ++row) {
+            for (int col = minCol; col <= maxCol; ++col) {
+                QModelIndex index = model()->index(row, col);
+                text += index.data().toString();
+
+                if (col < maxCol) {
+                    text += "\t"; // 列之间用制表符分隔
+                }
+            }
+            if (row < maxRow) {
+                text += "\n"; // 行之间用换行符分隔
+            }
+        }
+
+        // 将文本复制到剪贴板
+        QApplication::clipboard()->setText(text);
+        qDebug() << "Copied to clipboard:\n" << text;
+    }
+
+    QMenu *menu;
+    QAction *copyAction;
+};
 
 QT_BEGIN_NAMESPACE
 
@@ -22,7 +90,7 @@ public:
     QVBoxLayout *centralLayout;
     QStatusBar *statusbar;
 
-    QTableView *resultTable;
+    TableView *resultTable;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -52,7 +120,7 @@ public:
         MainWindow->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
         MainWindow->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-        resultTable = new QTableView(centralWidget);
+        resultTable = new TableView(centralWidget);
         resultTable->setObjectName(QString::fromUtf8("resultTable"));
         resultTable->verticalHeader()->setVisible(false);
         resultTable->horizontalHeader()->setVisible(false);
