@@ -64,12 +64,16 @@ signals:
     void tempSelected(const DescObj &rootObj);
 
 private:
+    void editTemplate(QString &filePath);
+
     QString             mRootPath;
     QString             mTempPath;
     QFileSystemModel    *mModel;
     QAction             *addNewFolderAction;
     QAction             *addNewTemplateAction;
     QAction             *editAction;
+    QAction             *deleteFolderAction;
+    QAction             *deleteTemplateAction;
 
     Ui::TmpMgmtWin *ui;
 
@@ -78,6 +82,8 @@ private slots:
     void tempDirView_tempSelected_handler(const QModelIndex &index);
     void addNewFolderAction_triggered_handler();
     void addNewTemplateAction_triggered_handler();
+    void deleteFolderAction_triggered_handler();
+    void deleteTemplateAction_triggered_handler();
     void editAction_triggered_handler();
 
 private:
