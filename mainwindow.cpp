@@ -43,18 +43,19 @@ MainWindow::~MainWindow()
 
 uint32_t MainWindow::extractSubfield(uint32_t number, int n, int m)
 {
-    // 验证n和m的有效性
-    if (m <= n || n < 0 || m > 31) {
-        throw std::invalid_argument("Invalid n or m values");
+    // 确保 n 和 m 在有效范围内（0 <= n <= m <= 31）
+    if ((n < 0) || (m > 31) || (n > m)) {
+        return 0;  // 如果输入无效，返回 0
     }
 
-    // 构造掩码，其中n到m位为1，其他位为0
-    uint32_t mask = (1U << (m + 1)) - 1; // 生成m位全为1的掩码
-    mask = mask << n; // 将掩码左移至n位位置
-    mask = mask & ~(mask >> (m - n + 1)); // 清除m位之后的1
+    // 计算掩码：从第 n 位到第 m 位的掩码
+    uint32_t mask = (1 << (m - n + 1)) - 1;  // 生成 (m - n + 1) 个 1
+    mask <<= n;  // 将掩码左移 n 位，对齐到第 n 位
 
-    // 利用掩码提取子字段，并右移n位获得实际值
-    return (number & mask) >> n;
+    // 提取字段值
+    uint32_t result = (number & mask) >> n;
+
+    return result;
 }
 
 void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
