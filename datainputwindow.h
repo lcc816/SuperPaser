@@ -14,7 +14,12 @@ class DataInputEdit : public QPlainTextEdit {
     Q_OBJECT
 
 public:
-    DataInputEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
+    DataInputEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent)
+    {
+        // 设置等宽字体
+        QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        setFont(fixedFont);
+    }
 
     QStringList stripLines(bool *ok)
     {
