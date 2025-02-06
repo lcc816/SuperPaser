@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     templatesPath = env.value("TEMPLATE_PATH");
     qDebug() << "APP root path: " << templatesPath;
+#ifdef Q_OS_WIN
+    setWindowIcon(QIcon(":/icons/images/endless.ico"));
+#elif defined(Q_OS_LINUX)
+    setWindowIcon(QIcon(":/icons/images/endless.png"));
+#endif
     // 设置 UI
     ui->setupUi(this);
     // 数据输入子窗口

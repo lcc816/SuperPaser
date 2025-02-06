@@ -100,10 +100,6 @@ public:
         MainWindow->setMinimumSize(QSize(1022, 630));
         MainWindow->setContentsMargins(5, 5, 5, 5);
 
-        QIcon icon;
-        icon.addFile(QCoreApplication::applicationDirPath() + "/images/endless.png", QSize(32, 32), QIcon::Normal, QIcon::Off);
-        MainWindow->setWindowIcon(icon);
-
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);

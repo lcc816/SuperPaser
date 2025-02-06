@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>images/endless.ico</file>
+        <file>images/endless.png</file>
+    </qresource>
+</RCC>
