@@ -19,7 +19,7 @@ public:
     QStringList stripLines(bool *ok)
     {
         QString inputText = this->toPlainText();
-        QStringList lines = inputText.split('\n', QString::SkipEmptyParts);
+        QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
         QStringList processedLines;
         if (ok)
             *ok = true;
