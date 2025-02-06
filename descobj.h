@@ -33,7 +33,13 @@ public:
     DescObj() { qDebug() << __func__ << "default creator"; }
     DescObj(const QJsonArray &arr);
     DescObj(const DescObj &other);
-
+    DescObj& operator=(const DescObj &other) {
+        if (this != &other) { // 检查自赋值
+            // 调用基类的赋值运算符
+            std::vector<DescDWordObj>::operator=(other);
+        }
+        return *this;
+    }
     bool checkFormat() const;
     bool checkValid() const;
     QJsonArray toJsonArray() const;
