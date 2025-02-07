@@ -14,52 +14,17 @@ class DataInputEdit : public QPlainTextEdit {
     Q_OBJECT
 
 public:
-    DataInputEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent)
+    DataInputEdit(QWidget *parent = nullptr)
+        : QPlainTextEdit(parent)
+        , hexDwordRegex(R"(0x[0-9a-fA-F]{8})")
     {
         // 设置等宽字体
         QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
         setFont(fixedFont);
-    }
 
-    QStringList stripLines(bool *ok)
-    {
-        QString inputText = this->toPlainText();
-        QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
-        QStringList processedLines;
-        if (ok)
-            *ok = true;
-
-        for (QString &line : lines) {
-            // Strip leading and trailing whitespace, including '\r' and '\n'
-            line = line.trimmed();
-
-            // Check if the line is a valid hexadecimal string
-            bool ook;
-            line.toUInt(&ook, 16); // Assume hexadecimal input
-            if (ook) {
-                // Add the valid hexadecimal string to the processed list
-                processedLines.append(line);
-            } else {
-                QString message = QString(tr("Invalid hexadecimal input: %1")).arg(line);
-                QMessageBox::warning(this, tr("Error"), message);
-                if (ok)
-                    *ok = false;
-                break;
-            }
-        }
-
-        return processedLines;
-    }
-
-    bool reverseLines()
-    {
-        return true;
-    }
-
-protected:
-    void contextMenuEvent(QContextMenuEvent *event) override {
-        // 创建自定义的菜单项
-        QAction *stripAction = new QAction(tr("Strip"), this);
+        // 初始化 stripAction
+        stripAction = new QAction(tr("Strip"), this);
+        stripAction->setShortcut(QKeySequence("Ctrl+S"));
         connect(stripAction, &QAction::triggered, this, [this]() {
             bool ok = false;
             QStringList processedLines = stripLines(&ok);
@@ -73,12 +38,99 @@ protected:
             this->setPlainText(processedText);
         });
 
-        QAction *reverseAction = new QAction(tr("Reverse Bytes"), this);
+        // 初始化 reverseAction
+        reverseAction = new QAction(tr("Reverse Bytes"), this);
+        reverseAction->setShortcut(QKeySequence("Ctrl+R"));
         connect(reverseAction, &QAction::triggered, this, [this]() {
             qDebug() << __func__ << "Reverse Bytes";
             reverseLines();
         });
 
+        // 将 Action 添加到窗口的 Action 列表中
+        this->addAction(stripAction);
+        this->addAction(reverseAction);
+    }
+
+    QStringList stripLines(bool *ok)
+    {
+        QString inputText = this->toPlainText();
+        QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
+        QStringList processedLines;
+        if (ok)
+            *ok = true;
+
+        for (QString &line : lines) {
+            // 去除行首和行尾的空白字符
+            line = line.trimmed();
+
+            // 查找所有匹配的十六进制 DWORD 字符串
+            QRegularExpressionMatchIterator matchIterator = hexDwordRegex.globalMatch(line);
+            QString lastMatch;
+
+            // 遍历所有匹配项，保留最后一个匹配项
+            while (matchIterator.hasNext()) {
+                QRegularExpressionMatch match = matchIterator.next();
+                lastMatch = match.captured(0); // 获取匹配的字符串
+            }
+
+            if (!lastMatch.isEmpty()) {
+                // 如果找到有效的 DWORD 字符串，则添加到结果列表
+                processedLines.append(lastMatch);
+            } else {
+                // 如果没有找到有效的 DWORD 字符串，则报错
+                QString message = QString(tr("No valid hexadecimal DWORD found in line: %1")).arg(line);
+                QMessageBox::warning(this, tr("Error"), message);
+                if (ok)
+                    *ok = false;
+                break;
+            }
+        }
+
+        return processedLines;
+    }
+
+    bool reverseLines()
+    {
+        QString inputText = this->toPlainText();
+        QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
+        bool hasValidDword = false; // 标记是否存在合法的 DWORD 字符串
+        int totalLines = lines.size(); // 总行数
+        int convertedLines = 0; // 成功转换的行数
+
+        for (int i = 0; i < lines.size(); ++i) {
+            QString &line = lines[i];
+            line = line.trimmed(); // 去除行首和行尾的空白字符
+
+            // 检查当前行是否是一个合法的 DWORD 字符串
+            QRegularExpressionMatch match = hexDwordRegex.match(line);
+            if (match.hasMatch()) {
+                QString dwordStr = match.captured(0); // 获取匹配的 DWORD 字符串
+                QString reversedDwordStr = reverseByteOrder(dwordStr); // 调换字节序
+                line.replace(dwordStr, reversedDwordStr); // 替换原字符串
+                hasValidDword = true; // 标记存在合法的 DWORD 字符串
+                convertedLines++; // 增加成功转换的行数
+            }
+        }
+
+        if (hasValidDword) {
+            // 如果有合法的 DWORD 字符串被调换，则更新文本内容
+            this->setPlainText(lines.join('\n'));
+
+            // 弹出消息框，显示总行数和成功转换的行数
+            QString message = QString(tr("Converted %1 line(s) of total %2 line(s)"))
+                                .arg(convertedLines).arg(totalLines);
+            QMessageBox::information(this, tr("Conversion Result"), message);
+
+            return true;
+        } else {
+            // 如果没有合法的 DWORD 字符串，弹出消息框提示
+            QMessageBox::information(this, tr("Conversion Result"), tr("No valid DWORD strings found."));
+            return false;
+        }
+    }
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override {
         // 获取当前的上下文菜单
         QMenu *menu = this->createStandardContextMenu();
 
@@ -97,6 +149,26 @@ protected:
         menu->exec(event->globalPos());
         delete menu;
     }
+private:
+    // 辅助函数：调换 DWORD 字符串的字节序
+    QString reverseByteOrder(const QString &dwordStr)
+    {
+        // 去掉 "0x" 前缀
+        QString hexStr = dwordStr.mid(2);
+
+        // 将字符串分为 8 个字符（4 个字节），并调换字节序
+        QString reversedHexStr;
+        for (int i = hexStr.length() - 2; i >= 0; i -= 2) {
+            reversedHexStr.append(hexStr.midRef(i, 2));
+        }
+
+        // 添加 "0x" 前缀并返回
+        return "0x" + reversedHexStr;
+    }
+
+    QAction *stripAction;  // 用于 Strip 操作的 Action
+    QAction *reverseAction; // 用于 Reverse Bytes 操作的 Action
+    QRegularExpression hexDwordRegex; // 将正则表达式定义为成员变量
 };
 
 QT_BEGIN_NAMESPACE
