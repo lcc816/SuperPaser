@@ -54,7 +54,12 @@ uint32_t MainWindow::extractSubfield(uint32_t number, int n, int m)
     }
 
     // 计算掩码：从第 n 位到第 m 位的掩码
-    uint32_t mask = (1 << (m - n + 1)) - 1;  // 生成 (m - n + 1) 个 1
+    uint32_t mask;
+    if ((n == 0) && (m == 31)) {
+        return number;
+    } else {
+        mask = (1UL << (m - n + 1)) - 1;  // 生成 (m - n + 1) 个 1
+    }
     mask <<= n;  // 将掩码左移 n 位，对齐到第 n 位
 
     // 提取字段值
