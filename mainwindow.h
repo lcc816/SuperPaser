@@ -43,7 +43,7 @@ private:
     void copyAction_triggered_handler()
     {
         // 获取选中的范围
-        QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
+        const QModelIndexList &selectedIndexes = selectionModel()->selectedIndexes();
         if (selectedIndexes.isEmpty()) {
             return; // 如果没有选中任何内容，直接返回
         }
