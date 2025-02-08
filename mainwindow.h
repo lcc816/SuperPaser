@@ -14,6 +14,7 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QClipboard>
+#include <QShortcut>
 
 class TableView : public QTableView
 {
@@ -22,11 +23,15 @@ class TableView : public QTableView
 public:
     TableView(QWidget *parent = nullptr)
         : QTableView(parent)
-        , menu(new QMenu)
-        , copyAction(new QAction(tr("Copy Selected")))
     {
-        menu->addAction(copyAction);
+        copyAction = new QAction(tr("Copy Selected"), this);
         connect(copyAction, &QAction::triggered, this, &TableView::copyAction_triggered_handler);
+        // 创建菜单
+        menu = new QMenu(this);
+        menu->addAction(copyAction);
+        // 添加快捷键 Ctrl+C
+        copyShortcut = new QShortcut(QKeySequence::Copy, this);
+        connect(copyShortcut, &QShortcut::activated, this, &TableView::copyAction_triggered_handler);
         // 显示自定义右键菜单
         setContextMenuPolicy(Qt::CustomContextMenu);
         connect(this, &QTableView::customContextMenuRequested, this, [this](const QPoint &pos) {
@@ -79,6 +84,7 @@ private:
 
     QMenu *menu;
     QAction *copyAction;
+    QShortcut *copyShortcut;
 };
 
 QT_BEGIN_NAMESPACE
