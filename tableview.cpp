@@ -10,6 +10,8 @@ TableView::TableView(QWidget *parent)
     menu->addAction(copyAction);
     // 添加快捷键 Ctrl+C
     copyShortcut = new QShortcut(QKeySequence::Copy, this);
+    // 关键修改：将焦点设置为当前部件，否则 Ctrl+C 快捷键冲突
+    copyShortcut->setContext(Qt::WidgetShortcut);
     connect(copyShortcut, &QShortcut::activated, this, &TableView::copyAction_triggered_handler);
     // 显示自定义右键菜单
     setContextMenuPolicy(Qt::CustomContextMenu);
