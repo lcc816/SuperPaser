@@ -14,6 +14,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     structviewwindow.cpp \
+    tableview.cpp \
     templateeditwindow.cpp \
     templatemanagewindow.cpp \
 
@@ -22,6 +23,7 @@ HEADERS += \
     descobj.h \
     mainwindow.h \
     structviewwindow.h \
+    tableview.h \
     templateeditwindow.h \
     templatemanagewindow.h
 
