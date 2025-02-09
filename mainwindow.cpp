@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->resultTable->setModel(model);
     // 连接信号与槽
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
+    connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, this, &MainWindow::tempMgmt_tempSelected_handler);
     connect(dataInputWin, &DataInputWin::submitClicked, this, &MainWindow::dataInput_submitClicked_handler);
 }

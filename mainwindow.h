@@ -37,9 +37,19 @@ public:
         connect(this, &QTableView::customContextMenuRequested, this, [this](const QPoint &pos) {
             this->menu->exec(viewport()->mapToGlobal(pos));
         });
+        // 连接单元格点击信号到槽函数
+        connect(this, &TableView::clicked, this, [this](const QModelIndex &index) {
+            // 获取点击单元格的行号
+            int row = index.row();
+            qDebug() << "Cell clicked at row:" << row;
+            emit rowSelected(row);
+        });
     }
 
-private:
+signals:
+    void rowSelected(int row);
+
+private slots:
     void copyAction_triggered_handler()
     {
         // 获取选中的范围
@@ -82,6 +92,7 @@ private:
         qDebug() << "Copied to clipboard:\n" << text;
     }
 
+private:
     QMenu *menu;
     QAction *copyAction;
     QShortcut *copyShortcut;
