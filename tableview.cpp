@@ -1,4 +1,11 @@
 #include "tableview.h"
+#include <QStandardItemModel>
+#include <QVBoxLayout>
+#include <QDialog>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QKeySequence>
+#include <QPushButton>
 
 TableView::TableView(QWidget *parent)
     : QTableView(parent)
@@ -13,6 +20,10 @@ TableView::TableView(QWidget *parent)
     // 关键修改：将焦点设置为当前部件，否则 Ctrl+C 快捷键冲突
     copyShortcut->setContext(Qt::WidgetShortcut);
     connect(copyShortcut, &QShortcut::activated, this, &TableView::copyAction_triggered_handler);
+    // 绑定 Ctrl+F 快捷键
+    findShortcut = new QShortcut(QKeySequence::Find, this);
+    findShortcut->setContext(Qt::WidgetShortcut); // 仅在 TableView 获得焦点时生效
+    connect(findShortcut, &QShortcut::activated, this, &TableView::findShortcut_triggered_handler);
     // 显示自定义右键菜单
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QTableView::customContextMenuRequested, this, [this](const QPoint &pos) {
@@ -25,6 +36,41 @@ TableView::TableView(QWidget *parent)
         qDebug() << "Cell clicked at row:" << row;
         emit rowSelected(row);
     });
+}
+
+void TableView::findAndSelectCell(const QString &keyword)
+{
+    QAbstractItemModel *model = this->model();
+    if (!model || keyword.isEmpty()) return; // 检查模型和关键词有效性
+
+    // 获取当前选中位置作为搜索起点
+    int startRow = lastFindRow > 0 ? lastFindRow + 1 : 0;
+    int startCol = lastFindCol > 0 ? lastFindCol + 1 : 0;
+
+    int totalRows = model->rowCount();
+    int totalCols = model->columnCount();
+
+    // 从起点开始逐行逐列搜索
+    for (int row = startRow; row < totalRows; ++row) {
+        for (int col = (row == startRow ? startCol : 0); col < totalCols; ++col) {
+            QModelIndex index = model->index(row, col);
+            QString cellText = model->data(index, Qt::DisplayRole).toString();
+
+            // 不区分大小写匹配（可根据需要改为 Qt::CaseSensitive）
+            if (cellText.contains(keyword, Qt::CaseInsensitive)) {
+                setCurrentIndex(index); // 选中单元格
+                scrollTo(index, QAbstractItemView::PositionAtCenter); // 滚动到视图中心
+                lastFindRow = row;
+                lastFindCol = col;
+                return; // 找到第一个匹配项后退出
+            }
+        }
+    }
+
+    // 未找到时提示用户
+    QMessageBox::information(this, tr("Search"), tr("The end of the table has been reached"));
+    lastFindRow = -1;
+    lastFindCol = -1;
 }
 
 void TableView::rowSelected_handler(int row)
@@ -81,4 +127,27 @@ void TableView::copyAction_triggered_handler()
     // 将文本复制到剪贴板
     QApplication::clipboard()->setText(text);
     qDebug() << "Copied to clipboard:\n" << text;
+}
+
+void TableView::findShortcut_triggered_handler()
+{
+    QDialog findDialog;
+    QVBoxLayout *findLayout;
+    QLineEdit *searchEdit;
+    QPushButton *findButton;
+
+    lastFindCol = currentIndex().isValid() ? currentIndex().row() - 1 : -1;
+    lastFindRow = currentIndex().isValid() ? currentIndex().column() - 1 : -1;
+
+    findLayout = new QVBoxLayout(&findDialog);
+    searchEdit = new QLineEdit(&findDialog);
+    findLayout->addWidget(searchEdit);
+    findButton = new QPushButton("Find Next", &findDialog);
+    findLayout->addWidget(findButton);
+    connect(findButton, &QPushButton::clicked, this, [this, searchEdit]() {
+        QString keyword = searchEdit->text();
+        this->findAndSelectCell(keyword);
+    });
+
+    findDialog.exec();
 }

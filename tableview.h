@@ -14,6 +14,7 @@ class TableView : public QTableView
 
 public:
     TableView(QWidget *parent = nullptr);
+    void findAndSelectCell(const QString &keyword);
 
 signals:
     void rowSelected(int row);
@@ -23,11 +24,16 @@ public slots:
 
 private slots:
     void copyAction_triggered_handler();
+    void findShortcut_triggered_handler();
 
 private:
     QMenu *menu;
     QAction *copyAction;
     QShortcut *copyShortcut;
+    QShortcut *findShortcut;
+
+    int lastFindRow;
+    int lastFindCol;
 };
 
 #endif // TABLEVIEW_H
