@@ -5,7 +5,9 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QStandardItemModel>
 #include "descobj.h"
+#include "tableview.h"
 
 using std::size_t;
 
@@ -16,7 +18,7 @@ class UiStructViewWin
 public:
     QVBoxLayout *contentLayout;
     QWidget *contentWidget;
-    QTableWidget *displayTable;
+    TableView *displayTable;
 
     void setupUi(QDockWidget *dockWin)
     {
@@ -34,11 +36,8 @@ public:
         dockWin->setWidget(contentWidget);
         contentLayout = new QVBoxLayout(contentWidget);
 
-        displayTable = new QTableWidget(contentWidget);
+        displayTable = new TableView(contentWidget);
         displayTable->setObjectName(QString::fromUtf8("displayTable"));
-        displayTable->setColumnCount(4);
-        // 设置表头（标题行）
-        displayTable->setHorizontalHeaderLabels({"DW", "Field", "LSB", "MSB"});
         // 隐藏垂直表头（序号列）
         displayTable->verticalHeader()->setVisible(false);
         // 设置内容不可编辑
@@ -68,6 +67,7 @@ public slots:
 
 private:
     Ui::StructViewWin *ui;
+    QStandardItemModel *model;
 };
 
 #endif // STRUCTVIEWWINDOW_H

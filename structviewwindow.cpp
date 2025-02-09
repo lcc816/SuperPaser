@@ -3,8 +3,12 @@
 StructViewWin::StructViewWin(QWidget *parent)
     : QDockWidget(parent)
     , ui(new Ui::StructViewWin)
+    , model(new QStandardItemModel(0, 4, this))
 {
     ui->setupUi(this);
+    // 设置数据模型
+    model->setHorizontalHeaderLabels({"DW", "Field", "LSB", "MSB"});
+    ui->displayTable->setModel(model);
 }
 
 StructViewWin::~StructViewWin()
@@ -14,17 +18,17 @@ StructViewWin::~StructViewWin()
 
 void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
 {
-    ui->displayTable->setRowCount(0); // 删除所有行
+    model->setRowCount(0); // 删除所有行
     int row = 0;
     for (size_t i = 0; i < desc.size(); i++) {
         const DescDWordObj &dword = desc.at(i);
         for (size_t j = 0; j < dword.size(); j++) {
             const DescFieldObj &field = dword.at(j);
-            ui->displayTable->insertRow(row);
-            ui->displayTable->setItem(row, 0, new QTableWidgetItem(QString::number(i)));
-            ui->displayTable->setItem(row, 1, new QTableWidgetItem(field["field"].toString()));
-            ui->displayTable->setItem(row, 2, new QTableWidgetItem(QString::number(field["LSB"].toInt())));
-            ui->displayTable->setItem(row, 3, new QTableWidgetItem(QString::number(field["MSB"].toInt())));
+            model->insertRow(row);
+            model->setItem(row, 0, new QStandardItem(QString::number(i)));
+            model->setItem(row, 1, new QStandardItem(field["field"].toString()));
+            model->setItem(row, 2, new QStandardItem(QString::number(field["LSB"].toInt())));
+            model->setItem(row, 3, new QStandardItem(QString::number(field["MSB"].toInt())));
 
             ++row;
         }
