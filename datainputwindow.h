@@ -2,7 +2,6 @@
 #define DATAINPUTWINDOW_H
 
 #include <QDockWidget>
-#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QMenu>
@@ -10,13 +9,14 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 #include "descobj.h"
+#include "texteditor.h"
 
-class DataInputEdit : public QPlainTextEdit {
+class DataInputEdit : public TextEditor {
     Q_OBJECT
 
 public:
     DataInputEdit(QWidget *parent = nullptr)
-        : QPlainTextEdit(parent)
+        : TextEditor(parent)
         , hexDwordRegex(R"(0x[0-9a-fA-F]{8})")
     {
         // 设置等宽字体

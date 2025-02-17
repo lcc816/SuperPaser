@@ -19,6 +19,7 @@ SOURCES += \
     tableview.cpp \
     templateeditwindow.cpp \
     templatemanagewindow.cpp \
+    texteditor.cpp
 
 HEADERS += \
     datainputwindow.h \
@@ -27,7 +28,8 @@ HEADERS += \
     structviewwindow.h \
     tableview.h \
     templateeditwindow.h \
-    templatemanagewindow.h
+    templatemanagewindow.h \
+    texteditor.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
