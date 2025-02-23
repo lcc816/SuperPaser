@@ -8,6 +8,7 @@
 #include <QMenu>
 #include <QDebug>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include "descobj.h"
 
 class DataInputEdit : public QPlainTextEdit {
@@ -54,7 +55,11 @@ public:
     QStringList stripLines(bool *ok)
     {
         QString inputText = this->toPlainText();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
+#else
+        QStringList lines = inputText.split('\n', QString::SkipEmptyParts);
+#endif
         QStringList processedLines;
         if (ok)
             *ok = true;
@@ -92,7 +97,11 @@ public:
     bool reverseLines()
     {
         QString inputText = this->toPlainText();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
+#else
+        QStringList lines = inputText.split('\n', QString::SkipEmptyParts);
+#endif
         bool hasValidDword = false; // 标记是否存在合法的 DWORD 字符串
         int totalLines = lines.size(); // 总行数
         int convertedLines = 0; // 成功转换的行数
