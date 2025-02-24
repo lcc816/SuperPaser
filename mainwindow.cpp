@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
+#include <QMessageBox>
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)

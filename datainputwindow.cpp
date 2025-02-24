@@ -1,5 +1,6 @@
-#include "datainputwindow.h"
+#include <QDebug>
 #include <QStandardItemModel>
+#include "datainputwindow.h"
 
 DataInputWin::DataInputWin(QWidget *parent)
     : QDockWidget(parent)
