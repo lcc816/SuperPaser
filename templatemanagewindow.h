@@ -57,7 +57,7 @@ class TmpMgmtWin : public QDockWidget
     Q_OBJECT
 
 public:
-    TmpMgmtWin(QWidget *parent = nullptr, QString tempPath = "");
+    TmpMgmtWin(QWidget *parent = nullptr, QString rootPath = "");
     ~TmpMgmtWin();
 
 signals:
@@ -66,8 +66,7 @@ signals:
 private:
     void editTemplate(QString &filePath);
 
-    QString             mRootPath;
-    QString             mTempPath;
+    QString             tempPath;
     QFileSystemModel    *mModel;
     QAction             *addNewFolderAction;
     QAction             *addNewTemplateAction;

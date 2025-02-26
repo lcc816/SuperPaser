@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon(":/icons/images/endless.ico"));
 #elif defined(Q_OS_LINUX)
     setWindowIcon(QIcon(":/icons/images/endless.png"));
+    if (templatesPath.isEmpty()) {
+        templatesPath = env.value("HOME") + "/.sp";
+    }
 #endif
     // 设置 UI
     ui->setupUi(this);

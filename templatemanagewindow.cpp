@@ -5,24 +5,23 @@
 #include <QDebug>
 #include "templateeditwindow.h"
 
-TmpMgmtWin::TmpMgmtWin(QWidget *parent, QString tempPath)
+TmpMgmtWin::TmpMgmtWin(QWidget *parent, QString rootPath)
     : QDockWidget(parent)
-    , mTempPath(tempPath)
     , ui(new Ui::TmpMgmtWin)
 {
     ui->setupUi(this);
 
     // 获取可执行文件所在根目录
-    if (mTempPath.isEmpty()) {
-        mTempPath = QCoreApplication::applicationDirPath() + "/descriptortemplates";
+    if (rootPath.isEmpty()) {
+        rootPath = QCoreApplication::applicationDirPath();
     }
 
     // 规范化模板目录名
-    mTempPath = QDir::cleanPath(mTempPath);
-    qDebug() << "模板目录： " << mTempPath;
+    tempPath = QDir::cleanPath(rootPath + "/descriptortemplates");
+    qDebug() << "模板目录： " << tempPath;
 
     // 检查子目录是否存在
-    QDir dir(mTempPath);
+    QDir dir(tempPath);
     if (!dir.exists()) {
         // 如果不存在，则创建子目录
         if (dir.mkpath(".")) {
@@ -35,9 +34,9 @@ TmpMgmtWin::TmpMgmtWin(QWidget *parent, QString tempPath)
     }
 
     mModel = new QFileSystemModel(this);
-    mModel->setRootPath(mTempPath);
+    mModel->setRootPath(tempPath);
 
-    const QModelIndex rootIndex = mModel->index(mTempPath);
+    const QModelIndex rootIndex = mModel->index(tempPath);
     if (rootIndex.isValid()) {
         ui->tempDirView->setModel(mModel);
         ui->tempDirView->setRootIndex(rootIndex);
@@ -245,7 +244,7 @@ void TmpMgmtWin::deleteFolderAction_triggered_handler()
 
                 // 强制刷新模型：重新设置根路径
                 mModel->setRootPath(""); // 先设置为空路径
-                mModel->setRootPath(mTempPath); // 重新设置回原来的路径
+                mModel->setRootPath(tempPath); // 重新设置回原来的路径
             } else {
                 // 删除失败，可能是由于权限问题或目录非空
                 QMessageBox::warning(this, "Error", "Failed to delete the folder.");
@@ -303,7 +302,7 @@ QModelIndex TmpMgmtWin::getIndexUnderMouse(const QPoint &pos)
     QModelIndex index = ui->tempDirView->indexAt(pos);
     if (!index.isValid()) {
         // 右键点击的是空白处
-        qDebug() << "Blank area, set index to" << mTempPath;
+        qDebug() << "Blank area, set index to" << tempPath;
         return ui->tempDirView->rootIndex();
     }
     return index;
