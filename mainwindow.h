@@ -88,5 +88,6 @@ private:
     Ui::MainWindow *ui;
     QStandardItemModel *model;
     DescObj curDesc;
+    bool multiGroup;
 };
 #endif // MAINWINDOW_H

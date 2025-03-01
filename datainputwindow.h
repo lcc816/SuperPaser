@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QCheckBox>
 #include <QMenu>
 #include "descobj.h"
 #include "texteditor.h"
@@ -19,7 +20,7 @@ public:
     QHBoxLayout *btnLaylout;
     QPushButton *submitButton;
     QPushButton *clearButton;
-
+    QCheckBox *multiCheckBox;
     QMenu *contextMenu;
 
     void setupUi(QDockWidget *dockWin)
@@ -48,6 +49,10 @@ public:
 
         btnLaylout->addStretch();
 
+        multiCheckBox = new QCheckBox(QObject::tr("Multi"), dockWin);
+        multiCheckBox->setFixedSize(70,23);
+        btnLaylout->addWidget(multiCheckBox);
+
         submitButton = new QPushButton(QObject::tr("Submit"), dockWin);
         submitButton->setFixedSize(70, 23);
         btnLaylout->addWidget(submitButton);
@@ -75,6 +80,7 @@ public:
 
 signals:
     void submitClicked(QStringList &lines);
+    void multiGroupChecked(bool checked);
 
 private slots:
     void submitButton_clicked_handler();

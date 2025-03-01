@@ -39,11 +39,16 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::BottomDockWidgetArea, structViewWin);
     // 设置数据模型
     ui->resultTable->setModel(model);
+    // 连续多组解析
+    multiGroup = false;
     // 连接信号与槽
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
     connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, this, &MainWindow::tempMgmt_tempSelected_handler);
     connect(dataInputWin, &DataInputWin::submitClicked, this, &MainWindow::dataInput_submitClicked_handler);
+    connect(dataInputWin, &DataInputWin::multiGroupChecked, this, [this](bool checked) {
+        multiGroup = checked;
+    });
 }
 
 MainWindow::~MainWindow()
@@ -79,32 +84,41 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
         QMessageBox::warning(this, tr("Error"), tr("No valid template selected"));
         return;
     }
-
-    if (size_t(lines.size()) < curDesc.size()) {
+    size_t curDescSize = curDesc.size();
+    size_t linesSize = size_t(lines.size());
+    if (linesSize < curDescSize) {
         QMessageBox::warning(this, tr("Error"), tr("Not enough lines applied to the selected template"));
         return;
     }
 
+    size_t desc_cnt = multiGroup ? (linesSize / curDescSize) : 1;
+
     int row = 0;
     model->clear();
-    for (size_t i = 0; i < curDesc.size(); i++) {
-        const DescDWordObj &dwordObj = curDesc.at(i);
-        const QString &line = lines.at(int(i));
-        uint32_t dwordValue = line.toUInt(nullptr, 16);
-        for (size_t j = 0; j < dwordObj.size(); j++) {
-            const DescFieldObj &fieldObj = dwordObj.at(j);
-            int lsb = fieldObj["LSB"].toInt();
-            int msb = fieldObj["MSB"].toInt();
-            QString fieldName(fieldObj["field"].toString());
-            uint32_t fieldValue = extractSubfield(dwordValue, lsb, msb);
-            model->setItem(row, 0, new QStandardItem(fieldName));
-            model->setItem(row, 1, new QStandardItem("0x" + QString::number(fieldValue, 16)));
-            model->setItem(row, 2, new QStandardItem(QString::number(fieldValue)));
-            qDebug() << fieldName << ":" << fieldValue;
-            ++row;
+    ui->resultTable->setUpdatesEnabled(false); // 禁用更新
+    for (size_t k = 0; k < desc_cnt; k++) {
+        for (size_t i = 0; i < curDesc.size(); i++) {
+            const DescDWordObj &dwordObj = curDesc.at(i);
+            const QString &line = lines.at(int(i + curDesc.size() * k));
+            uint32_t dwordValue = line.toUInt(nullptr, 16);
+
+            for (size_t j = 0; j < dwordObj.size(); j++) {
+                const DescFieldObj &fieldObj = dwordObj.at(j);
+                int lsb = fieldObj["LSB"].toInt();
+                int msb = fieldObj["MSB"].toInt();
+                QString fieldName(fieldObj["field"].toString());
+                uint32_t fieldValue = extractSubfield(dwordValue, lsb, msb);
+
+                model->setItem(row, 0, new QStandardItem(fieldName));
+                model->setItem(row, 1, new QStandardItem(QString::asprintf("0x%x", fieldValue)));
+                model->setItem(row, 2, new QStandardItem(QString::number(fieldValue)));
+                qDebug() << fieldName << ":" << fieldValue;
+                ++row;
+            }
         }
     }
     ui->resultTable->resizeColumnsToContents();
+    ui->resultTable->setUpdatesEnabled(true); // 启用更新
 }
 
 void MainWindow::tempMgmt_tempSelected_handler(const DescObj &desc)

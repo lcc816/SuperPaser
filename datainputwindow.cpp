@@ -13,6 +13,10 @@ DataInputWin::DataInputWin(QWidget *parent)
         qDebug() << "{DataInputWin} clear text";
         this->ui->inputWidget->clear();
     });
+    connect(ui->multiCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+        qDebug() << "{DataInputWin} multi check state:" << checked;
+        emit this->multiGroupChecked(checked);
+    });
 }
 
 DataInputWin::~DataInputWin()
