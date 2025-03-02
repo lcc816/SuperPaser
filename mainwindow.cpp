@@ -27,6 +27,12 @@ void CustomStyleDelegate::initStyleOption(QStyleOptionViewItem *option, const QM
         option->backgroundBrush = QBrush(Qt::lightGray); // 奇数行灰色
     }
 
+    // 读取组颜色，不改变组颜色策略
+    QVariant bgColor = index.data(Qt::BackgroundRole);
+    if (bgColor.isValid()) {
+        option->backgroundBrush = bgColor.value<QBrush>();
+    }
+
     // 设置第二列和第三列右对齐
     if (index.column() == 1 || index.column() == 2) {
         option->displayAlignment = Qt::AlignRight | Qt::AlignVCenter;
@@ -120,7 +126,7 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
     }
 
     size_t desc_cnt = multiGroup ? (linesSize / curDescSize) : 1;
-
+    int groupSize = 0;
     int row = 0;
     model->clear();
     ui->resultTable->setUpdatesEnabled(false); // 禁用更新
@@ -140,12 +146,30 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
                 model->setItem(row, 0, new QStandardItem(fieldName));
                 model->setItem(row, 1, new QStandardItem(QString::asprintf("0x%x", fieldValue)));
                 model->setItem(row, 2, new QStandardItem(QString::number(fieldValue)));
+                if (multiGroup) {
+                    QStandardItem *groupItem = new QStandardItem(QString::asprintf("Group %zu", k));
+                    if (k % 2 == 0) {
+                        groupItem->setBackground(QBrush(Qt::lightGray)); // 浅灰色
+                    } else {
+                        groupItem->setBackground(QBrush(Qt::white)); // 白色
+                    }
+                    model->setItem(row, 3, groupItem); // 组号列
+                }
                 qDebug() << fieldName << ":" << fieldValue;
                 ++row;
             }
         }
+        if (k == 0)
+            groupSize = row;
     }
     ui->resultTable->resizeColumnsToContents();
+    // 合并组号列
+    if (multiGroup) {
+        for (int row = 0; row < model->rowCount(); row += groupSize) {
+            ui->resultTable->setSpan(row, 3, groupSize, 1); // 合并 groupSize 行
+        }
+        ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    }
     ui->resultTable->setUpdatesEnabled(true); // 启用更新
 }
 
