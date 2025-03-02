@@ -75,7 +75,8 @@ void TableView::findAndSelectCell(const QString &keyword)
 
 void TableView::rowSelected_handler(int row)
 {
-    if (row >= 0 && row < model()->rowCount()) {
+    if (row >= 0) {
+        row = row % model()->rowCount();
         selectionModel()->clear();
         // 选中指定行
         selectionModel()->select(model()->index(row, 0),

@@ -38,14 +38,5 @@ void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
 
 void StructViewWin::result_rowSelected_handler(int row)
 {
-    if (row >= 0 && row < ui->displayTable->model()->rowCount()) {
-        ui->displayTable->selectionModel()->clear();
-        // 选中指定行
-        ui->displayTable->selectionModel()->select(ui->displayTable->model()->index(row, 0),
-                                                   QItemSelectionModel::Select | QItemSelectionModel::Rows);
-        // 滚动到指定行
-        ui->displayTable->scrollTo(ui->displayTable->model()->index(row, 0));
-    } else {
-        qWarning() << "Invalid row:" << row;
-    }
+    ui->displayTable->rowSelected_handler(row);
 }
