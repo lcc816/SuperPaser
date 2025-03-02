@@ -4,7 +4,27 @@
 #include <QJsonObject>
 #include <QDebug>
 #include <QMessageBox>
+#include <QStyledItemDelegate>
 #include "mainwindow.h"
+
+// 自定义委托，用于设置右对齐
+class RightAlignDelegate : public QStyledItemDelegate
+{
+public:
+    explicit RightAlignDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const override;
+};
+
+void RightAlignDelegate::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
+{
+    QStyledItemDelegate::initStyleOption(option, index);
+
+    // 设置第二列和第三列右对齐
+    if (index.column() == 1 || index.column() == 2) {
+        option->displayAlignment = Qt::AlignRight | Qt::AlignVCenter;
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -39,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::BottomDockWidgetArea, structViewWin);
     // 设置数据模型
     ui->resultTable->setModel(model);
+    ui->resultTable->setItemDelegateForColumn(1, new RightAlignDelegate(this));
+    ui->resultTable->setItemDelegateForColumn(2, new RightAlignDelegate(this));
     // 连续多组解析
     multiGroup = false;
     // 连接信号与槽
