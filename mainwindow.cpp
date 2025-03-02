@@ -7,18 +7,25 @@
 #include <QStyledItemDelegate>
 #include "mainwindow.h"
 
-// 自定义委托，用于设置右对齐
-class RightAlignDelegate : public QStyledItemDelegate
+// 自定义表格样式委托
+class CustomStyleDelegate : public QStyledItemDelegate
 {
 public:
-    explicit RightAlignDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+    explicit CustomStyleDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
 
     void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const override;
 };
 
-void RightAlignDelegate::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
+void CustomStyleDelegate::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
 {
     QStyledItemDelegate::initStyleOption(option, index);
+
+    // 设置交替显示颜色
+    if (index.row() % 2 == 0) {
+        option->backgroundBrush = QBrush(Qt::white); // 偶数行白色
+    } else {
+        option->backgroundBrush = QBrush(Qt::lightGray); // 奇数行灰色
+    }
 
     // 设置第二列和第三列右对齐
     if (index.column() == 1 || index.column() == 2) {
@@ -59,8 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::BottomDockWidgetArea, structViewWin);
     // 设置数据模型
     ui->resultTable->setModel(model);
-    ui->resultTable->setItemDelegateForColumn(1, new RightAlignDelegate(this));
-    ui->resultTable->setItemDelegateForColumn(2, new RightAlignDelegate(this));
+    ui->resultTable->setItemDelegate(new CustomStyleDelegate(this));
     // 连续多组解析
     multiGroup = false;
     // 连接信号与槽
