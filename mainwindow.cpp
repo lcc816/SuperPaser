@@ -149,9 +149,9 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
                 if (multiGroup) {
                     QStandardItem *groupItem = new QStandardItem(QString::asprintf("Group %zu", k));
                     if (k % 2 == 0) {
-                        groupItem->setBackground(QBrush(Qt::lightGray)); // 浅灰色
-                    } else {
                         groupItem->setBackground(QBrush(Qt::white)); // 白色
+                    } else {
+                        groupItem->setBackground(QBrush(Qt::lightGray)); // 浅灰色
                     }
                     model->setItem(row, 3, groupItem); // 组号列
                 }
