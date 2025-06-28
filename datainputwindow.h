@@ -81,6 +81,10 @@ public:
 signals:
     void submitClicked(QStringList &lines);
     void multiGroupChecked(bool checked);
+    void requestToClear();
+
+public slots:
+    void tempMgmt_tempSelected_handler(const DescObj &desc);
 
 private slots:
     void submitButton_clicked_handler();

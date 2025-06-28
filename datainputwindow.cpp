@@ -24,6 +24,12 @@ DataInputWin::~DataInputWin()
     delete ui;
 }
 
+void DataInputWin::tempMgmt_tempSelected_handler(const DescObj &desc)
+{
+    curDesc = desc;
+    qDebug() << __func__ << "isEmpty:" << curDesc.empty();
+}
+
 void DataInputWin::submitButton_clicked_handler()
 {
     bool ok;

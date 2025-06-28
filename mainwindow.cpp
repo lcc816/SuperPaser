@@ -83,10 +83,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
     connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, this, &MainWindow::tempMgmt_tempSelected_handler);
+    connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, dataInputWin, &DataInputWin::tempMgmt_tempSelected_handler);
     connect(dataInputWin, &DataInputWin::submitClicked, this, &MainWindow::dataInput_submitClicked_handler);
     connect(dataInputWin, &DataInputWin::multiGroupChecked, this, [this](bool checked) {
         multiGroup = checked;
     });
+    connect(dataInputWin, &DataInputWin::requestToClear, this, &MainWindow::common_clearDisplay_handler);
 }
 
 MainWindow::~MainWindow()
@@ -114,6 +116,11 @@ uint32_t MainWindow::extractSubfield(uint32_t number, int n, int m)
     uint32_t result = (number & mask) >> n;
 
     return result;
+}
+
+void MainWindow::common_clearDisplay_handler()
+{
+    model->clear();
 }
 
 void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
