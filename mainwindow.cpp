@@ -126,16 +126,16 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
     }
 
     size_t desc_cnt = multiGroup ? (linesSize / curDescSize) : 1;
-    int groupSize = 0;
     int row = 0;
     model->clear();
-    ui->resultTable->setUpdatesEnabled(false); // 禁用更新
     for (size_t k = 0; k < desc_cnt; k++) {
+        ui->resultTable->setUpdatesEnabled(false); // 禁用更新
+        int startRow = row;
+        int groupSize = 0;
         for (size_t i = 0; i < curDesc.size(); i++) {
             const DescDWordObj &dwordObj = curDesc.at(i);
             const QString &line = lines.at(int(i + curDesc.size() * k));
             uint32_t dwordValue = line.toUInt(nullptr, 16);
-
             for (size_t j = 0; j < dwordObj.size(); j++) {
                 const DescFieldObj &fieldObj = dwordObj.at(j);
                 int lsb = fieldObj["LSB"].toInt();
@@ -157,20 +157,18 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
                 }
                 qDebug() << fieldName << ":" << fieldValue;
                 ++row;
+                ++groupSize;
             }
         }
-        if (k == 0)
-            groupSize = row;
-    }
-    ui->resultTable->resizeColumnsToContents();
-    // 合并组号列
-    if (multiGroup) {
-        for (int row = 0; row < model->rowCount(); row += groupSize) {
-            ui->resultTable->setSpan(row, 3, groupSize, 1); // 合并 groupSize 行
+        // 合并组号列
+        if (multiGroup && (groupSize > 1)) {
+            ui->resultTable->setSpan(startRow, 3, groupSize, 1); // 合并 groupSize 行
+            ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
         }
-        ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+        ui->resultTable->resizeColumnsToContents();
+        ui->resultTable->setUpdatesEnabled(true); // 启用更新
+        QApplication::processEvents();
     }
-    ui->resultTable->setUpdatesEnabled(true); // 启用更新
 }
 
 void MainWindow::tempMgmt_tempSelected_handler(const DescObj &desc)
