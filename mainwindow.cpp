@@ -75,6 +75,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->resultTable->setItemDelegate(new CustomStyleDelegate(this));
     // 连续多组解析
     multiGroup = false;
+    // 解析进程正在执行
+    isParsering = false;
     // 连接信号与槽
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
     connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
@@ -128,6 +130,8 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
     size_t desc_cnt = multiGroup ? (linesSize / curDescSize) : 1;
     int row = 0;
     model->clear();
+    // 设置标记，阻止描述符对象被更新
+    isParsering = true;
     for (size_t k = 0; k < desc_cnt; k++) {
         ui->resultTable->setUpdatesEnabled(false); // 禁用更新
         int startRow = row;
@@ -169,10 +173,14 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
         ui->resultTable->setUpdatesEnabled(true); // 启用更新
         QApplication::processEvents();
     }
+
+    isParsering = false;
 }
 
 void MainWindow::tempMgmt_tempSelected_handler(const DescObj &desc)
 {
-    curDesc = desc;
-    qDebug() << __func__ << "isEmpty:" << curDesc.empty();
+    if (!isParsering)
+        curDesc = desc;
+    else
+        qDebug() << __func__ << "Parsing process in progress!";
 }

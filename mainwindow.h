@@ -89,5 +89,6 @@ private:
     QStandardItemModel *model;
     DescObj curDesc;
     bool multiGroup;
+    bool isParsering;
 };
 #endif // MAINWINDOW_H
