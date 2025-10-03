@@ -43,7 +43,9 @@ public:
         // 设置内容不可编辑
         displayTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
         // 设置最小列宽
-        displayTable->horizontalHeader()->setMinimumSectionSize(40);
+        // displayTable->horizontalHeader()->setMinimumSectionSize(40);
+        // 设置表格视图的布局方向为从右向左
+        displayTable->setLayoutDirection(Qt::RightToLeft);
         contentLayout->addWidget(displayTable);
     }
 };
