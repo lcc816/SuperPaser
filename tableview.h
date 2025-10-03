@@ -6,6 +6,8 @@
 #include <QTableView>
 #include <QClipboard>
 #include <QShortcut>
+#include <QCheckBox>
+#include <QPushButton>
 #include <QApplication>
 
 class TableView : public QTableView
@@ -14,7 +16,6 @@ class TableView : public QTableView
 
 public:
     TableView(QWidget *parent = nullptr);
-    void findAndSelectCell(const QString &keyword);
 
 signals:
     void rowSelected(int row);
@@ -34,6 +35,19 @@ private:
 
     int lastFindRow;
     int lastFindCol;
+
+    QDialog *findDialog;
+    QLineEdit *searchEdit;
+    QCheckBox *matchCaseCheckBox;
+    QCheckBox *wholeWordCheckBox;
+    QPushButton *findNextButton;
+    QPushButton *findPreviousButton;
+    QPushButton *closeButton;
+
+    void setupFindDialog();
+    void findNext();
+    void findPrevious();
+    void findAndSelectCell(const QString &keyword, bool searchForward, bool matchCase, bool wholeWord);
 };
 
 #endif // TABLEVIEW_H
