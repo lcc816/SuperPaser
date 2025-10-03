@@ -65,11 +65,12 @@ public:
 
 public slots:
     void tempMgmt_tempSelected_handler(const DescObj &rootObj);
-    void result_rowSelected_handler(int row);
+    void result_rowSelected_handler(int row, int col);
 
 private:
     Ui::StructViewWin *ui;
     QStandardItemModel *model;
+    DescObj curDesc;
 };
 
 #endif // STRUCTVIEWWINDOW_H

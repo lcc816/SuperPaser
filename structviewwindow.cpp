@@ -37,6 +37,8 @@ StructViewWin::~StructViewWin()
 
 void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
 {
+    curDesc = desc;
+
     model->setRowCount(0); // 删除所有行
     int row = 0;
     for (size_t i = 0; i < desc.size(); i++) {
@@ -59,7 +61,19 @@ void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
     }
 }
 
-void StructViewWin::result_rowSelected_handler(int row)
+void StructViewWin::result_rowSelected_handler(int row, int col)
 {
-    ui->displayTable->rowSelected_handler(row);
+    if (row < 0) {
+        qWarning() << "Invalid row:" << row;
+    }
+
+    int fieldCnt = 0;
+    for (size_t i = 0; i < curDesc.size(); i++) {
+        const DescDWordObj &dword = curDesc.at(i);
+        fieldCnt += dword.size();
+        if (fieldCnt > row) {
+            ui->displayTable->rowSelected_handler(int(i), 32 - (fieldCnt - row));
+            break;
+        }
+    }
 }

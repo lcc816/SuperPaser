@@ -37,8 +37,9 @@ TableView::TableView(QWidget *parent)
     connect(this, &TableView::clicked, this, [this](const QModelIndex &index) {
         // 获取点击单元格的行号
         int row = index.row();
-        qDebug() << "Cell clicked at row:" << row;
-        emit rowSelected(row);
+        int col = index.column();
+        qDebug() << "Cell clicked at row:" << row << "col:" << col;
+        emit rowSelected(row, col);
     });
 
     // 初始化查找对话框相关成员
@@ -51,18 +52,15 @@ TableView::TableView(QWidget *parent)
     closeButton = nullptr;
 }
 
-void TableView::rowSelected_handler(int row)
+void TableView::rowSelected_handler(int row, int col)
 {
-    if (row >= 0) {
-        row = row % model()->rowCount();
-        selectionModel()->clear();
-        // 选中指定行
-        selectionModel()->select(model()->index(row, 0),
-                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
-        // 滚动到指定行
-        scrollTo(model()->index(row, 0));
-    } else {
-        qWarning() << "Invalid row:" << row;
+    qDebug() << "Selected row:" << row << "col:" << col;
+
+    if ((row >= 0) && (row < model()->rowCount()) &&
+        (col >= 0) && (col < model()->columnCount())) {
+        QModelIndex index = model()->index(row, col);
+        setCurrentIndex(index);
+        scrollTo(index, QAbstractItemView::PositionAtCenter);
     }
 }
 
@@ -207,7 +205,7 @@ void TableView::findAndSelectCell(const QString &keyword, bool searchForward,
                                        : tr("The beginning of the table has been reached. Continue from the end?");
 
         int result = QMessageBox::question(this, tr("Search"), message,
-                                          QMessageBox::Yes | QMessageBox::No);
+                                           QMessageBox::Yes | QMessageBox::No);
 
         if (result == QMessageBox::Yes) {
             // 重置搜索位置并重新搜索
