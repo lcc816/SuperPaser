@@ -71,6 +71,7 @@ private:
     Ui::StructViewWin *ui;
     QStandardItemModel *model;
     DescObj curDesc;
+    int totalFields;
 };
 
 #endif // STRUCTVIEWWINDOW_H
