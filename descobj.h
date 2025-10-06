@@ -7,6 +7,17 @@
 #include <QJsonValue>
 #include <QDebug>
 
+struct DescFieldItem
+{
+    QString name;
+    int lsb;
+    int msb;
+    int dwIdx;
+    uint32_t value;
+};
+
+typedef QList<DescFieldItem> DescFieldList;
+
 class DescFieldObj : public QJsonObject
 {
 public:
