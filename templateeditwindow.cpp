@@ -79,9 +79,9 @@ void TmpEditWin::showTemplate()
 {
     ui->editTable->setRowCount(0); // 删除所有行
     int row = 0;
-    for (size_t i = 0; i < mDescObj.size(); i++) {
+    for (int i = 0; i < mDescObj.size(); i++) {
         DescDWordObj dword = mDescObj.at(i);
-        for (size_t j = 0; j < dword.size(); j++) {
+        for (int j = 0; j < dword.size(); j++) {
             DescFieldObj field = dword.at(j);
             ui->editTable->insertRow(row);
             ui->editTable->setItem(row, 0, new QTableWidgetItem(QString::number(i)));

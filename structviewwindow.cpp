@@ -63,10 +63,10 @@ void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
     model->setRowCount(0); // 删除所有行
     int row = 0;
     totalFields = 0;
-    for (size_t i = 0; i < desc.size(); i++) {
+    for (int i = 0; i < desc.size(); i++) {
         const DescDWordObj &dword = desc.at(i);
         model->insertRow(row);
-        for (size_t j = 0; j < dword.size(); j++) {
+        for (int j = 0; j < dword.size(); j++) {
             const DescFieldObj &field = dword.at(j);
             int lsb = field["LSB"].toInt();
             int msb = field["MSB"].toInt();
@@ -98,15 +98,15 @@ void StructViewWin::result_rowSelected_handler(int row, int col)
     row = row % totalFields;
 
     int fieldCnt = 0;
-    for (size_t i = 0; i < curDesc.size(); i++) {
+    for (int i = 0; i < curDesc.size(); i++) {
         const DescDWordObj &dword = curDesc.at(i);
         fieldCnt += dword.size();
         if (fieldCnt > row) {
-            size_t j = dword.size() - size_t(fieldCnt - row);
+            int j = dword.size() - (fieldCnt - row);
             const DescFieldObj &field = dword.at(j);
 
             int lsb = field["LSB"].toInt();
-            ui->displayTable->rowSelected_handler(int(i), lsb);
+            ui->displayTable->rowSelected_handler(i, lsb);
 
             break;
         }

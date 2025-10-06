@@ -129,27 +129,27 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
         QMessageBox::warning(this, tr("Error"), tr("No valid template selected"));
         return;
     }
-    size_t curDescSize = curDesc.size();
-    size_t linesSize = size_t(lines.size());
+    int curDescSize = curDesc.size();
+    int linesSize = lines.size();
     if (linesSize < curDescSize) {
         QMessageBox::warning(this, tr("Error"), tr("Not enough lines applied to the selected template"));
         return;
     }
 
-    size_t desc_cnt = multiGroup ? (linesSize / curDescSize) : 1;
+    int desc_cnt = multiGroup ? (linesSize / curDescSize) : 1;
     int row = 0;
     model->clear();
     // 设置标记，阻止描述符对象被更新
     isParsering = true;
-    for (size_t k = 0; k < desc_cnt; k++) {
+    for (int k = 0; k < desc_cnt; k++) {
         ui->resultTable->setUpdatesEnabled(false); // 禁用更新
         int startRow = row;
         int groupSize = 0;
-        for (size_t i = 0; i < curDesc.size(); i++) {
+        for (int i = 0; i < curDesc.size(); i++) {
             const DescDWordObj &dwordObj = curDesc.at(i);
             const QString &line = lines.at(int(i + curDesc.size() * k));
             uint32_t dwordValue = line.toUInt(nullptr, 16);
-            for (size_t j = 0; j < dwordObj.size(); j++) {
+            for (int j = 0; j < dwordObj.size(); j++) {
                 const DescFieldObj &fieldObj = dwordObj.at(j);
                 int lsb = fieldObj["LSB"].toInt();
                 int msb = fieldObj["MSB"].toInt();
@@ -160,7 +160,7 @@ void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
                 model->setItem(row, 1, new QStandardItem(QString::asprintf("0x%x", fieldValue)));
                 model->setItem(row, 2, new QStandardItem(QString::number(fieldValue)));
                 if (multiGroup) {
-                    QStandardItem *groupItem = new QStandardItem(QString::asprintf("Group %zu", k));
+                    QStandardItem *groupItem = new QStandardItem(QString::asprintf("Group %d", k));
                     if (k % 2 == 0) {
                         groupItem->setBackground(QBrush(Qt::white)); // 白色
                     } else {
