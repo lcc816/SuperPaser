@@ -40,7 +40,7 @@ bool DescDWordObj::checkFormat() const
 QJsonArray DescDWordObj::toJsonArray() const
 {
     QJsonArray arr;
-    for (size_t i = 0; i < this->size(); i++) {
+    for (int i = 0; i < this->size(); i++) {
         arr.push_back(this->at(i));
     }
     return arr;
@@ -58,7 +58,7 @@ DescObj::DescObj(const QJsonArray &arr)
 }
 
 DescObj::DescObj(const DescObj &other)
-    : std::vector<DescDWordObj>(other)
+    : QList<DescDWordObj>(other)
 {
     qDebug() << __func__ << "Desc copied";
 }
@@ -83,7 +83,7 @@ bool DescObj::checkValid() const
 QJsonArray DescObj::toJsonArray() const
 {
     QJsonArray arr;
-    for (size_t i = 0; i < this->size(); i++) {
+    for (int i = 0; i < this->size(); i++) {
         arr.push_back(this->at(i).toJsonArray());
     }
     return arr;

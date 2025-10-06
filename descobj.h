@@ -17,7 +17,7 @@ public:
     bool checkFormat() const;
 };
 
-class DescDWordObj : public std::vector<DescFieldObj>
+class DescDWordObj : public QList<DescFieldObj>
 {
 public:
     DescDWordObj() {}
@@ -27,7 +27,7 @@ public:
     QJsonArray toJsonArray() const;
 };
 
-class DescObj : public std::vector<DescDWordObj>
+class DescObj : public QList<DescDWordObj>
 {
 public:
     DescObj() { qDebug() << __func__ << "default creator"; }
@@ -36,7 +36,7 @@ public:
     DescObj& operator=(const DescObj &other) {
         if (this != &other) { // 检查自赋值
             // 调用基类的赋值运算符
-            std::vector<DescDWordObj>::operator=(other);
+            QList<DescDWordObj>::operator=(other);
         }
         return *this;
     }
