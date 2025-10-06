@@ -66,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
     tmpMgmtWin = new TmpMgmtWin(this, templatesPath);
     tmpMgmtWin->setObjectName(QString::fromUtf8("tmpMgmtWin"));
     addDockWidget(Qt::RightDockWidgetArea, tmpMgmtWin);
+    // 调整水平停靠窗口宽度
+    resizeDocks({dataInputWin, tmpMgmtWin}, {440, 220}, Qt::Horizontal);
     // 结构展示窗口
     structViewWin = new StructViewWin(this);
     structViewWin->setObjectName(QString::fromUtf8("structViewWin"));
