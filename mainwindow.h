@@ -77,6 +77,7 @@ public:
     static uint32_t extractSubfield(uint32_t number, int n, int m);
 
 private slots:
+    void dataInput_appendOneGroup_handler(DescFieldList fields);
     void common_clearDisplay_handler();
     void dataInput_submitClicked_handler(QStringList &lines);
     void tempMgmt_tempSelected_handler(const DescObj &desc);
@@ -87,6 +88,8 @@ private:
     TmpMgmtWin *tmpMgmtWin;
     StructViewWin *structViewWin;
     Ui::MainWindow *ui;
+    DescFieldList descFields;
+    int curGroupId;
     QStandardItemModel *model;
     DescObj curDesc;
     bool multiGroup;

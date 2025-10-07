@@ -42,6 +42,8 @@ void CustomStyleDelegate::initStyleOption(QStyleOptionViewItem *option, const QM
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , descFields()
+    , curGroupId(0)
     , model(new QStandardItemModel(0, 3, this))
 {
     // 获取环境变量
@@ -118,9 +120,51 @@ uint32_t MainWindow::extractSubfield(uint32_t number, int n, int m)
     return result;
 }
 
+void MainWindow::dataInput_appendOneGroup_handler(DescFieldList fields)
+{
+    int startRow = model->rowCount();
+    int groupSize = fields.size();
+    qDebug() << "Append group" << curGroupId << "start" << startRow << "size" << groupSize;
+
+    for (auto &field : fields) {
+        QStandardItem *nameItem = new QStandardItem(field.name);
+
+        QStandardItem *valueItem = new QStandardItem();
+        valueItem->setData(field.value, Qt::DisplayRole);
+
+        QStandardItem *hexValueItem = new QStandardItem(QString::asprintf("0x%x", field.value));
+
+        QList<QStandardItem *> newRow({nameItem, valueItem, hexValueItem});
+
+        if (multiGroup) {
+            QStandardItem *groupIdItem = new QStandardItem(QString::asprintf("Group %d", curGroupId));
+            if (curGroupId % 2 == 0) {
+                groupIdItem->setBackground(QBrush(Qt::white)); // 白色
+            } else {
+                groupIdItem->setBackground(QBrush(Qt::lightGray)); // 浅灰色
+            }
+            newRow << groupIdItem;
+        }
+
+        model->appendRow(newRow);
+    }
+
+    // 合并组号列
+    if (multiGroup && (groupSize > 1)) {
+        ui->resultTable->setSpan(startRow, 3, groupSize, 1); // 合并 groupSize 行
+        ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    }
+
+    // 拼接到 field 数组末尾
+    descFields += fields;
+    curGroupId++;
+}
+
 void MainWindow::common_clearDisplay_handler()
 {
     model->clear();
+    curGroupId = 0;
+    descFields.clear();
 }
 
 void MainWindow::dataInput_submitClicked_handler(QStringList &lines)
