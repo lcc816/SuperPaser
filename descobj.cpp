@@ -106,3 +106,25 @@ DescObj DescObj::fromJson(const QByteArray &json, bool *ok)
 
     return DescObj(doc.array());
 }
+
+uint32_t DescObj::extractSubfield(uint32_t number, int n, int m)
+{
+    // 确保 n 和 m 在有效范围内（0 <= n <= m <= 31）
+    if ((n < 0) || (m > 31) || (n > m)) {
+        return 0;  // 如果输入无效，返回 0
+    }
+
+    // 计算掩码：从第 n 位到第 m 位的掩码
+    uint32_t mask;
+    if ((n == 0) && (m == 31)) {
+        return number;
+    } else {
+        mask = (1UL << (m - n + 1)) - 1;  // 生成 (m - n + 1) 个 1
+    }
+    mask <<= n;  // 将掩码左移 n 位，对齐到第 n 位
+
+    // 提取字段值
+    uint32_t result = (number & mask) >> n;
+
+    return result;
+}

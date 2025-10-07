@@ -86,11 +86,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, this, &MainWindow::tempMgmt_tempSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, dataInputWin, &DataInputWin::tempMgmt_tempSelected_handler);
-    connect(dataInputWin, &DataInputWin::submitClicked, this, &MainWindow::dataInput_submitClicked_handler);
+    //connect(dataInputWin, &DataInputWin::submitClicked, this, &MainWindow::dataInput_submitClicked_handler);
     connect(dataInputWin, &DataInputWin::multiGroupChecked, this, [this](bool checked) {
         multiGroup = checked;
     });
     connect(dataInputWin, &DataInputWin::requestToClear, this, &MainWindow::common_clearDisplay_handler);
+    connect(dataInputWin, &DataInputWin::appendOneGroup, this, &MainWindow::dataInput_appendOneGroup_handler);
 }
 
 MainWindow::~MainWindow()

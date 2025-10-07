@@ -57,6 +57,7 @@ public:
     QByteArray toBtyeArray() const;
 
     static DescObj fromJson(const QByteArray &json, bool *ok = nullptr);
+    static uint32_t extractSubfield(uint32_t number, int n, int m);
 };
 
 #endif // DESCOBJ_H

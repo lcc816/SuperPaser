@@ -82,6 +82,7 @@ signals:
     void submitClicked(QStringList &lines);
     void multiGroupChecked(bool checked);
     void requestToClear();
+    void appendOneGroup(DescFieldList fields);
 
 public slots:
     void tempMgmt_tempSelected_handler(const DescObj &desc);
@@ -92,6 +93,8 @@ private slots:
 private:
     Ui::DataInputWin *ui;
     DescObj curDesc;
+    bool isParsering;
+    bool multiGroup;
 };
 
 #endif // DATAINPUTWINDOW_H
