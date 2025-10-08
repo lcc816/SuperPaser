@@ -160,16 +160,12 @@ void MainWindow::batchUpdateResult()
             processCnt++;
         }
 
-        // 合并组号列
-        if (multiGroup && (groupSize > 1)) {
-            ui->resultTable->setSpan(startRow, 3, groupSize, 1); // 合并 groupSize 行
-            ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-        }
-
         curGroupId++;
     }
 
     // 启用更新并刷新
+    if (multiGroup)
+        ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
     ui->resultTable->setUpdatesEnabled(true);
     ui->resultTable->resizeColumnsToContents();
 
