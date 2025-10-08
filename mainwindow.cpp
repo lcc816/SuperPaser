@@ -42,7 +42,7 @@ void CustomStyleDelegate::initStyleOption(QStyleOptionViewItem *option, const QM
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , descFields()
+    , descList()
     , curGroupId(0)
     , model(new QStandardItemModel(0, 3, this))
 {
@@ -77,12 +77,17 @@ MainWindow::MainWindow(QWidget *parent)
     // 设置数据模型
     ui->resultTable->setModel(model);
     ui->resultTable->setItemDelegate(new CustomStyleDelegate(this));
+    // 设置UI更新定时器
+    updateResultTimer.setSingleShot(true);
+    updateResultTimer.setInterval(50);  // 50ms更新一次UI
+    isUpdating = false;
     // 连续多组解析
     multiGroup = false;
     // 连接信号与槽
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
     connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, dataInputWin, &DataInputWin::tempMgmt_tempSelected_handler);
+    connect(&updateResultTimer, &QTimer::timeout, this, &MainWindow::batchUpdateResult);
     connect(dataInputWin, &DataInputWin::multiGroupChecked, this, [this](bool checked) {
         multiGroup = checked;
     });
@@ -97,47 +102,80 @@ MainWindow::~MainWindow()
 
 void MainWindow::dataInput_appendOneGroup_handler(DescFieldList fields)
 {
-    int startRow = model->rowCount();
-    int groupSize = fields.size();
-    qDebug() << "Append group" << curGroupId << "start" << startRow << "size" << groupSize;
+    // 加入到解析结果数组
+    descList.push_back(fields);
 
-    for (auto &field : fields) {
-        QStandardItem *nameItem = new QStandardItem(field.name);
-
-        QStandardItem *valueItem = new QStandardItem();
-        valueItem->setData(field.value, Qt::DisplayRole);
-
-        QStandardItem *hexValueItem = new QStandardItem(QString::asprintf("0x%x", field.value));
-
-        QList<QStandardItem *> newRow({nameItem, valueItem, hexValueItem});
-
-        if (multiGroup) {
-            QStandardItem *groupIdItem = new QStandardItem(QString::asprintf("Group %d", curGroupId));
-            if (curGroupId % 2 == 0) {
-                groupIdItem->setBackground(QBrush(Qt::white)); // 白色
-            } else {
-                groupIdItem->setBackground(QBrush(Qt::lightGray)); // 浅灰色
-            }
-            newRow << groupIdItem;
-        }
-
-        model->appendRow(newRow);
+    if (!updateResultTimer.isActive() && !isUpdating) {
+        updateResultTimer.start();
     }
-
-    // 合并组号列
-    if (multiGroup && (groupSize > 1)) {
-        ui->resultTable->setSpan(startRow, 3, groupSize, 1); // 合并 groupSize 行
-        ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-    }
-
-    // 拼接到 field 数组末尾
-    descFields += fields;
-    curGroupId++;
 }
 
 void MainWindow::common_clearDisplay_handler()
 {
     model->clear();
     curGroupId = 0;
-    descFields.clear();
+    descList.clear();
+}
+
+void MainWindow::batchUpdateResult()
+{
+    if (isUpdating || descList.isEmpty()) return;
+
+    isUpdating = true;
+
+    int processCnt = 0;
+
+    // 禁用 UI 自动更新
+    ui->resultTable->setUpdatesEnabled(false);
+
+    // 限制单次刷新行数
+    while ((curGroupId < descList.size()) && (processCnt < 5000)) {
+        auto &fields = descList[curGroupId];
+
+        int startRow = model->rowCount();
+        int groupSize = fields.size();
+        qDebug() << "Append group" << curGroupId << "start" << startRow << "size" << groupSize;
+
+        for (auto &field : fields) {
+            QStandardItem *nameItem = new QStandardItem(field.name);
+
+            QStandardItem *valueItem = new QStandardItem();
+            valueItem->setData(field.value, Qt::DisplayRole);
+
+            QStandardItem *hexValueItem = new QStandardItem(QString::asprintf("0x%x", field.value));
+
+            QList<QStandardItem *> newRow({nameItem, valueItem, hexValueItem});
+
+            if (multiGroup) {
+                QStandardItem *groupIdItem = new QStandardItem(QString::asprintf("Group %d", curGroupId));
+                if (curGroupId % 2 == 0) {
+                    groupIdItem->setBackground(QBrush(Qt::white)); // 白色
+                } else {
+                    groupIdItem->setBackground(QBrush(Qt::lightGray)); // 浅灰色
+                }
+                newRow << groupIdItem;
+            }
+
+            model->appendRow(newRow);
+            processCnt++;
+        }
+
+        // 合并组号列
+        if (multiGroup && (groupSize > 1)) {
+            ui->resultTable->setSpan(startRow, 3, groupSize, 1); // 合并 groupSize 行
+            ui->resultTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+        }
+
+        curGroupId++;
+    }
+
+    // 启用更新并刷新
+    ui->resultTable->setUpdatesEnabled(true);
+    ui->resultTable->resizeColumnsToContents();
+
+    isUpdating = false;
+
+    if (curGroupId < descList.size()) {
+        updateResultTimer.start();
+    }
 }

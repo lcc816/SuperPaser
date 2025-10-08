@@ -11,6 +11,7 @@
 #include <templatemanagewindow.h>
 #include <QStandardItemModel>
 #include <QCoreApplication>
+#include <QTimer>
 #include "tableview.h"
 
 QT_BEGIN_NAMESPACE
@@ -78,6 +79,7 @@ public:
 private slots:
     void dataInput_appendOneGroup_handler(DescFieldList fields);
     void common_clearDisplay_handler();
+    void batchUpdateResult();
 
 private:
     QString templatesPath;
@@ -85,7 +87,9 @@ private:
     TmpMgmtWin *tmpMgmtWin;
     StructViewWin *structViewWin;
     Ui::MainWindow *ui;
-    DescFieldList descFields;
+    QList<DescFieldList> descList;
+    QTimer updateResultTimer;
+    bool isUpdating;
     int curGroupId;
     QStandardItemModel *model;
     bool multiGroup;
