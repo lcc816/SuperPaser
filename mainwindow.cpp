@@ -103,7 +103,7 @@ MainWindow::~MainWindow()
 void MainWindow::dataInput_appendOneGroup_handler(DescFieldList fields)
 {
     // 加入到解析结果数组
-    descList.push_back(fields);
+    descList.push_back(std::move(fields));
 
     if (!updateResultTimer.isActive() && !isUpdating) {
         updateResultTimer.start();

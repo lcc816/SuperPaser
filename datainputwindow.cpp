@@ -69,9 +69,11 @@ void DataInputWin::submitButton_clicked_handler()
         return;
     }
 
+    DescFieldList fields;
+
     auto it = lines.constBegin();
     while (it != lines.constEnd()) {
-        DescFieldList fields = {};
+        fields.clear();
         int curDescSize = curDesc.size();
         int dwIdx = 0;
         // 将来单个描述符行数可能根据数据内容变化
@@ -94,14 +96,14 @@ void DataInputWin::submitButton_clicked_handler()
                 field.value = fieldValue;
 
                 // qDebug() << fieldName << ":" << fieldValue;
-                fields.push_back(field);
+                fields.push_back(std::move(field));
             }
             dwIdx++;
             it++;
         }
 
         // 发送一组数据给主窗口显示
-        emit appendOneGroup(fields);
+        emit appendOneGroup(std::move(fields));
 
         if (!multiGroup)
             break;
