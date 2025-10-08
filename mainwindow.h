@@ -74,13 +74,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    static uint32_t extractSubfield(uint32_t number, int n, int m);
 
 private slots:
     void dataInput_appendOneGroup_handler(DescFieldList fields);
     void common_clearDisplay_handler();
-    void dataInput_submitClicked_handler(QStringList &lines);
-    void tempMgmt_tempSelected_handler(const DescObj &desc);
 
 private:
     QString templatesPath;
@@ -91,8 +88,6 @@ private:
     DescFieldList descFields;
     int curGroupId;
     QStandardItemModel *model;
-    DescObj curDesc;
     bool multiGroup;
-    bool isParsering;
 };
 #endif // MAINWINDOW_H
