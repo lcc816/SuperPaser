@@ -80,7 +80,7 @@ private slots:
     void dataInput_appendOneGroup_handler(DescFieldList fields);
     void common_clearDisplay_handler();
     void batchUpdateResult();
-    void result_rowSelected_handler(int row, int col);
+    void result_rowSelected_handler(const QModelIndex &index);
 
 private:
     QString templatesPath;

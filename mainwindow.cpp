@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     multiGroup = false;
     // 连接信号与槽
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
-    connect(ui->resultTable, &TableView::rowSelected, this, &MainWindow::result_rowSelected_handler);
+    connect(ui->resultTable, &TableView::clicked, this, &MainWindow::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, dataInputWin, &DataInputWin::tempMgmt_tempSelected_handler);
     connect(&updateResultTimer, &QTimer::timeout, this, &MainWindow::batchUpdateResult);
     connect(dataInputWin, &DataInputWin::multiGroupChecked, this, [this](bool checked) {
@@ -179,8 +179,10 @@ void MainWindow::batchUpdateResult()
     }
 }
 
-void MainWindow::result_rowSelected_handler(int row, int col)
+void MainWindow::result_rowSelected_handler(const QModelIndex &index)
 {
+    // 获取点击单元格的行
+    int row = index.row();
     QStandardItem *groupIdItem = model->item(row, 3);
     if (groupIdItem == nullptr) return;
 
