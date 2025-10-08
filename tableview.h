@@ -16,10 +16,7 @@ class TableView : public QTableView
 
 public:
     TableView(QWidget *parent = nullptr);
-    void rowSelected_handler(int row, int col);
-
-signals:
-    void rowSelected(int row, int col);
+    void itemSelected_handler(int row, int col);
 
 private slots:
     void copyAction_triggered_handler();

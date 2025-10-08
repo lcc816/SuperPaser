@@ -85,5 +85,5 @@ void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
 
 void StructViewWin::fieldSelected_handler(int dw, int lsb)
 {
-    ui->displayTable->rowSelected_handler(dw, lsb);
+    ui->displayTable->itemSelected_handler(dw, lsb);
 }

@@ -33,14 +33,6 @@ TableView::TableView(QWidget *parent)
     connect(this, &QTableView::customContextMenuRequested, this, [this](const QPoint &pos) {
         this->menu->exec(viewport()->mapToGlobal(pos));
     });
-    // 连接单元格点击信号到槽函数
-    connect(this, &TableView::clicked, this, [this](const QModelIndex &index) {
-        // 获取点击单元格的行号
-        int row = index.row();
-        int col = index.column();
-        qDebug() << "Cell clicked at row:" << row << "col:" << col;
-        emit rowSelected(row, col);
-    });
 
     // 初始化查找对话框相关成员
     findDialog = nullptr;
@@ -52,7 +44,7 @@ TableView::TableView(QWidget *parent)
     closeButton = nullptr;
 }
 
-void TableView::rowSelected_handler(int row, int col)
+void TableView::itemSelected_handler(int row, int col)
 {
     qDebug() << "Selected row:" << row << "col:" << col;
 

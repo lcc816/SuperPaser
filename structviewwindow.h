@@ -62,10 +62,10 @@ class StructViewWin : public QDockWidget
 public:
     StructViewWin(QWidget *parent);
     ~StructViewWin();
+    void fieldSelected_handler(int dw, int lsb);
 
 public slots:
     void tempMgmt_tempSelected_handler(const DescObj &rootObj);
-    void fieldSelected_handler(int row, int col);
 
 private:
     Ui::StructViewWin *ui;
