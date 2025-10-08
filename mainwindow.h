@@ -88,9 +88,9 @@ private:
     StructViewWin *structViewWin;
     Ui::MainWindow *ui;
     QList<DescFieldList> descList;
+    QVector<int> groupStartRows;
     QTimer updateResultTimer;
     bool isUpdating;
-    int curGroupId;
     QStandardItemModel *model;
     bool multiGroup;
 };

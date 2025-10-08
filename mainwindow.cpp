@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , descList()
-    , curGroupId(0)
+    , groupStartRows()
     , model(new QStandardItemModel(0, 3, this))
 {
     // 获取环境变量
@@ -113,7 +113,7 @@ void MainWindow::dataInput_appendOneGroup_handler(DescFieldList fields)
 void MainWindow::common_clearDisplay_handler()
 {
     model->clear();
-    curGroupId = 0;
+    groupStartRows.clear();
     descList.clear();
 }
 
@@ -129,12 +129,14 @@ void MainWindow::batchUpdateResult()
     ui->resultTable->setUpdatesEnabled(false);
 
     // 限制单次刷新行数
-    while ((curGroupId < descList.size()) && (processCnt < 5000)) {
+    while ((groupStartRows.size() < descList.size()) && (processCnt < 5000)) {
+        int curGroupId = groupStartRows.size();
         auto &fields = descList[curGroupId];
 
         int startRow = model->rowCount();
         int groupSize = fields.size();
         qDebug() << "Append group" << curGroupId << "start" << startRow << "size" << groupSize;
+
 
         for (auto &field : fields) {
             QStandardItem *nameItem = new QStandardItem(field.name);
@@ -160,7 +162,8 @@ void MainWindow::batchUpdateResult()
             processCnt++;
         }
 
-        curGroupId++;
+        // 存储每组的开始行号
+        groupStartRows.push_back(startRow);
     }
 
     // 启用更新并刷新
@@ -171,7 +174,7 @@ void MainWindow::batchUpdateResult()
 
     isUpdating = false;
 
-    if (curGroupId < descList.size()) {
+    if (groupStartRows.size() < descList.size()) {
         updateResultTimer.start();
     }
 }
