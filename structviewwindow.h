@@ -65,7 +65,7 @@ public:
 
 public slots:
     void tempMgmt_tempSelected_handler(const DescObj &rootObj);
-    void result_rowSelected_handler(int row, int col);
+    void fieldSelected_handler(int row, int col);
 
 private:
     Ui::StructViewWin *ui;

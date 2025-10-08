@@ -83,32 +83,7 @@ void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
     }
 }
 
-void StructViewWin::result_rowSelected_handler(int row, int col)
+void StructViewWin::fieldSelected_handler(int dw, int lsb)
 {
-    if (row < 0) {
-        qWarning() << "Invalid row:" << row;
-        return;
-    }
-
-    if (totalFields == 0) {
-        qWarning() << "No fields are displayed";
-        return;
-    }
-
-    row = row % totalFields;
-
-    int fieldCnt = 0;
-    for (int i = 0; i < curDesc.size(); i++) {
-        const DescDWordObj &dword = curDesc.at(i);
-        fieldCnt += dword.size();
-        if (fieldCnt > row) {
-            int j = dword.size() - (fieldCnt - row);
-            const DescFieldObj &field = dword.at(j);
-
-            int lsb = field["LSB"].toInt();
-            ui->displayTable->rowSelected_handler(i, lsb);
-
-            break;
-        }
-    }
+    ui->displayTable->rowSelected_handler(dw, lsb);
 }

@@ -80,6 +80,7 @@ private slots:
     void dataInput_appendOneGroup_handler(DescFieldList fields);
     void common_clearDisplay_handler();
     void batchUpdateResult();
+    void result_rowSelected_handler(int row, int col);
 
 private:
     QString templatesPath;

@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     multiGroup = false;
     // 连接信号与槽
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, structViewWin, &StructViewWin::tempMgmt_tempSelected_handler);
-    connect(ui->resultTable, &TableView::rowSelected, structViewWin, &StructViewWin::result_rowSelected_handler);
+    connect(ui->resultTable, &TableView::rowSelected, this, &MainWindow::result_rowSelected_handler);
     connect(tmpMgmtWin, &TmpMgmtWin::tempSelected, dataInputWin, &DataInputWin::tempMgmt_tempSelected_handler);
     connect(&updateResultTimer, &QTimer::timeout, this, &MainWindow::batchUpdateResult);
     connect(dataInputWin, &DataInputWin::multiGroupChecked, this, [this](bool checked) {
@@ -177,4 +177,22 @@ void MainWindow::batchUpdateResult()
     if (groupStartRows.size() < descList.size()) {
         updateResultTimer.start();
     }
+}
+
+void MainWindow::result_rowSelected_handler(int row, int col)
+{
+    QStandardItem *groupIdItem = model->item(row, 3);
+    if (groupIdItem == nullptr) return;
+
+    int groupId = groupIdItem->text().midRef(6).toInt();
+
+    if ((groupId < 0) || (groupId >= groupStartRows.size())) return;
+    // 计算组内行索引
+    int localRowId = row - groupStartRows[groupId];
+
+    if ((localRowId < 0) || (localRowId >= descList[groupId].size())) return;
+    // 获取解析条目
+    DescFieldItem &field = descList[groupId][localRowId];
+
+    structViewWin->fieldSelected_handler(field.dwIdx, field.lsb);
 }
