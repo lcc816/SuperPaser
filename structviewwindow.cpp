@@ -1,4 +1,6 @@
 #include <QStyledItemDelegate>
+#include <QMouseEvent>
+#include <QToolTip>
 #include "structviewwindow.h"
 
 // 自定义表格样式委托
@@ -49,6 +51,11 @@ StructViewWin::StructViewWin(QWidget *parent)
     ui->displayTable->setItemDelegate(new StructViewStyleDelegate(this));
     // 设置数据模型
     ui->displayTable->setModel(model);
+
+    // 为表格视口安装事件过滤器
+    ui->displayTable->viewport()->installEventFilter(this);
+    // 启用视口的鼠标追踪
+    ui->displayTable->viewport()->setMouseTracking(true);
 }
 
 StructViewWin::~StructViewWin()
@@ -81,6 +88,28 @@ void StructViewWin::tempMgmt_tempSelected_handler(const DescObj &desc)
         // DWord换行
         ++row;
     }
+}
+
+bool StructViewWin::eventFilter(QObject *obj, QEvent *event)
+{
+    if ((obj == ui->displayTable->viewport()) && (event->type() == QEvent::MouseMove)) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        QModelIndex index = ui->displayTable->indexAt(mouseEvent->pos());
+        if (index.isValid()) {
+            QString detail  = QString(
+                "%1\n"
+                "────────────────\n"
+                "DW: %2\n"
+                "LSB: %3"
+            ).arg(index.data().toString()).arg(index.row()).arg(index.column());
+            QToolTip::showText(mouseEvent->globalPos(), detail, nullptr, QRect(), -1);
+        } else {
+            QToolTip::hideText();
+        }
+    }
+
+    // 不要忘记返回基类的事件过滤器
+    return QDockWidget::eventFilter(obj, event);
 }
 
 void StructViewWin::fieldSelected_handler(int dw, int lsb)

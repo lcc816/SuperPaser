@@ -67,6 +67,9 @@ public:
 public slots:
     void tempMgmt_tempSelected_handler(const DescObj &rootObj);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private:
     Ui::StructViewWin *ui;
     QStandardItemModel *model;
